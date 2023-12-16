@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCam Viewer</title>
+    <style>
+        body {
+            font-family: "Lucida Sans", sans-serif;
+        }
+        .container {
+            width: 354px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            background-color: #007BFF;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button:disabled {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff80;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <input type="text" id="textBox1" placeholder="192.168.15.xx">
+        <input type="text" id="textBox2" placeholder="4747">
+        <button onclick="access()" id="button1">Acessar</button>
+        <br><br>
+        <error></error>
+    </div>
+
+    <script>
+        function access() {
+            var textBox1Value = document.getElementById("textBox1").value;
+            var textBox2Value = document.getElementById("textBox2").value;
+            var errorElement = document.getElementsByTagName("error")[0];
+
+            errorElement.innerText = ""; 
+            
+            if (isValidIP(textBox1Value) && isValidPort(textBox2Value)) {
+                document.getElementById("textBox1").setAttribute("disabled", "");
+                document.getElementById("textBox2").setAttribute("disabled", "");
+                document.getElementById("button1").setAttribute("disabled", "");
+
+                setTimeout(() => {
+                    location.href = `./control.html?ip=${textBox1Value}&port=${textBox2Value}`;
+                }, 1000);
+            } else {
+                if (!isValidIP(textBox1Value)) {
+                    errorElement.innerText = "IP Inválido.";
+                } else if (!isValidPort(textBox2Value)) {
+                    errorElement.innerText = "Porta Inválida.";
+                }
+            }
+        }
+
+        function isValidIP(ip) {
+            var ipRegex = /^(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.((25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.){2}(25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$/;
+            return ipRegex.test(ip);
+        }
+
+        function isValidPort(port) {
+            var portNumber = parseInt(port, 10);
+            return !isNaN(portNumber) && portNumber > 0 && portNumber <= 65535;
+        }
+    </script>
+</body>
+</html>

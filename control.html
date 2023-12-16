@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DCam Viewer</title>
+    <style>
+        body {
+            font-family: 'Lucida Sans', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: rgb(68, 68, 68);
+        }
+        #brand {
+            background-color: black;
+            color: white;
+            text-align: center;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+        }
+        .webViewContainer {
+            flex: 1;
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: #f0f0f0;
+            border-top: 1px solid #ccc;
+        }
+        .button {
+            padding: 8px;
+            margin-right: 10px;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #007BFF;
+            color: #fff;
+        }
+        .label {
+            font-weight: bold;
+            color: #009C3B;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="brand">DCam Viewer</div>
+        <div class="controls">
+            <button class="button" onclick="actionRequest('/cam/1/fpslimit')">Limitar FPS</button>
+            <button class="button" onclick="actionRequest('screenshot')">Salvar imagem</button>
+            <button class="button" onclick="actionRequest('/cam/1/af')">Auto-foco</button>
+            <button class="button" onclick="actionRequest('/cam/1/led_toggle')">Ligar/desligar LED</button>
+            <button class="button" onclick="actionRequest('/cam/1/zoomin')">Zoom+</button>
+            <button class="button" onclick="actionRequest('/cam/1/zoomout')">Zoom-</button>
+        </div>
+        <div class="webViewContainer">
+            <iframe src="./connecting.html" style="width: 100%; height: 100%; border: none;"></iframe>
+            <img src="" width="860" height="640">
+        </div>
+    </div>
+
+    <script>
+        var ip;
+        var port;
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const urlSearchParams = new URLSearchParams(location.search);
+            ip = urlSearchParams.get("ip");
+            port = urlSearchParams.get("port");
+            setTimeout(() => {
+                document.getElementsByTagName("iframe")[0].remove();
+                document.getElementsByTagName("img")[0].src = `http://${ip}:${port}/video?640x480`;
+            }, 2000);
+
+            setInterval(getBattery, 5000);
+        });
+
+        function actionRequest(action) {
+            if (action === "screenshot") {
+                var now = new Date();
+                var formattedDateTime = `${now.getDate()}-${(now.getMonth() + 1)}-${now.getFullYear()} ${now.getHours()}-${now.getMinutes()}-${now.getSeconds()}`;
+
+                fetch(`http://${ip}:${port}/cam/1/frame.jpg`)
+                    .then(response => response.blob())
+                    .then(blob => {
+                        var url = window.URL.createObjectURL(blob);
+                        var a = document.createElement('a');
+                        a.href = url;
+                        a.download = formattedDateTime;
+                        document.body.appendChild(a);
+                        a.click();
+                        window.URL.revokeObjectURL(url);
+                        a.remove();
+                    })
+                .catch(error => console.error('Erro ao buscar a imagem:', error));
+            } else {
+                fetch(`http://${ip}:${port}${action}`);
+            }
+        }
+
+        function getBattery() {
+            fetch(`http://${ip}:${port}/battery`)
+                .then(response => {
+                    return response.text;
+                })
+                .then(data => {
+                    console.log(data);
+                });
+        }
+    </script>
+</body>
+</html>
