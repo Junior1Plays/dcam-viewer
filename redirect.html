@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Redirecionador</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+
+        #message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        #icon {
+            font-size: 60px;
+            color: #ff0000;
+        }
+    </style>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        setTimeout(() => {
+          const urlParams = new URLSearchParams(location.search);
+          return location.href = `http://${urlParams.get("ip")}:${urlParams.get("port")}/video`;
+        }, 5000)
+      });
+    </script>
+</head>
+<body>
+    <div id="icon">&#128247;</div>
+    <div id="message">DCam Viewer está sendo iniciado...</div>
+</body>
+</html>
